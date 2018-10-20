@@ -130,6 +130,56 @@ window * CreateWindow(float xmin, float xmax, float ymin, float ymax) {
   return win;
   }
 
+  viewport* CreateViewport(float xmin, float xmax, float ymin, float ymax){
+  	viewport * vp;
+
+  	vp = (viewport *) malloc(sizeof(viewport));
+  	vp -> xmin = xmin;
+  	vp -> ymin = ymin;
+  	vp -> xmax = xmax;
+  	vp -> ymax = ymax;
+
+  	return vp;
+  }
+
+  
+  void CreateViewportBorder(viewport * vp ,bufferdevice * dev){
+  	hobject * border;
+	int xmin, ymin, xmax, ymax;
+	int i;  	
+  	xmin = round(vp -> xmin);
+  	ymin = round(vp -> ymin);
+  	xmax = round(vp -> xmax);
+  	ymax = round(vp -> ymax);
+
+  	//(xmin, ymin)
+  	dev -> buffer[((dev -> MaxY - ymin -1)*dev -> MaxX) + xmin] = 1;
+  	//(xmin, ymax)
+  	dev -> buffer[((dev -> MaxY - ymax)*dev -> MaxX) + xmin] = 1;
+  	//(xmax, ymin)
+  	dev -> buffer[((dev -> MaxY - ymin - 1)*dev -> MaxX) + xmax] = 1;
+  	//(xmax, ymax)
+  	dev -> buffer[((dev -> MaxY - ymax)*dev->MaxX )+ xmax] = 1;
+  	
+  	//(xmax, ymax) -> (xmin, ymax)
+  	for(i = ((dev -> MaxY - ymax)*dev->MaxX )+ xmax ;i > ((dev -> MaxY - ymax)*dev -> MaxX) + xmin;i--){
+  		dev -> buffer[i] = 1;
+  	}
+  	//(xmax, ymin) -> (xmin, ymin)
+  	for(i = ((dev -> MaxY - ymin - 1)*dev -> MaxX) + xmax; i > ((dev -> MaxY - ymin -1)*dev -> MaxX) + xmin; i--){
+  		dev -> buffer[i] = 1;
+  	}
+  	//(xmin, ymax) -> (xmin, ymin)
+  	for(i = ((dev -> MaxY - ymin -1)*dev -> MaxX) + xmin; i > ((dev -> MaxY - ymax)*dev -> MaxX) + xmin; i = i - dev -> MaxX){
+  		dev -> buffer[i] = 1;
+  	}
+  	//(xmax,ymax) -> (xmax,ymin)
+  	for(i = ((dev -> MaxY - ymin - 1)*dev -> MaxX) + xmax; i > ((dev -> MaxY - ymax)*dev->MaxX )+ xmax; i = i - dev -> MaxX){
+  		dev -> buffer[i] = 1;
+  	}
+
+  }
+
 point * Sru2Srn(point * ponto, window * janela) {
   point * np;
 
@@ -287,16 +337,16 @@ int DrawLine(point * p1, point * p2, window * win, bufferdevice * dev, int color
        j = round(a*(++i) + b);
        
        if (j > aux) {
-	 while (aux < j) {
-	   dev->buffer[(dev->MaxY - aux - 1) * dev->MaxX + i] = color; 
-	   aux++;
-	   }
+		 while (aux < j) {
+		   dev->buffer[(dev->MaxY - aux - 1) * dev->MaxX + i] = color; 
+		   aux++;
+		   }
          }
        if (j < aux) {
-	 while (aux > j) { 
-	   dev->buffer[(dev->MaxY - aux - 1) * dev->MaxX + i] = color;
-	   aux--;
-	   }
+		 while (aux > j) { 
+		   dev->buffer[(dev->MaxY - aux - 1) * dev->MaxX + i] = color;
+		   aux--;
+		   }
          }
         
        }
@@ -514,6 +564,19 @@ object * Scale(object * ob, float sx, float sy) {
   return oob;  
   }
 
+//Cisalhamento 
+ hobject * Cisalhamento (hobject* hob,hmatrix * hm){
+ 	int number = hob -> numbers_of_points;
+ 	int i;
+ 	for(i = number; i >= 0; i--){
+ 		hob->hpoints[i].x = hob->hpoints[i].x * hm->a11 +  hob->hpoints[i].y * hm->a12;
+        hob->hpoints[i].y = hob->hpoints[i].x * hm->a21 +  hob->hpoints[i].y * hm->a22;
+ 	}
+
+ 	return hob;
+ }
+
+
 hpoint * LinearTransf(hmatrix * m, hpoint * p) {
   hpoint * pt;
   
@@ -557,7 +620,7 @@ hmatrix * SetRotMatrix(float th) {
   
   return m;
   }
-
+/*
 hmatrix * SetSclMatrix(float sx, float sy) {
   hmatrix * m;
 
@@ -565,6 +628,18 @@ hmatrix * SetSclMatrix(float sx, float sy) {
   
   m->a11 = sx;  m->a12 = 0.0;  m->a13 = 0.0;
   m->a21 = 0.0; m->a22 = sy;   m->a23 = 0.0;
+  m->a31 = 0.0; m->a32 = 0.0;  m->a33 = 1.0;
+  
+  return m;
+  }*/
+
+hmatrix * SetSclMatrix(float sx, float sy) {
+  hmatrix * m;
+
+  m = (hmatrix *) malloc(sizeof(hmatrix));
+  
+  m->a11 = 1.0;  m->a12 = sx;  m->a13 = 0.0;
+  m->a21 = sy; m->a22 = 1.0;   m->a23 = 0.0;
   m->a31 = 0.0; m->a32 = 0.0;  m->a33 = 1.0;
   
   return m;

@@ -113,6 +113,8 @@ int SetHObject(hpoint *, hobject *);
 
 /* sistemas de referências */
 window * CreateWindow(float, float, float, float);
+viewport* CreateViewport(float, float, float, float);
+void CreateViewportBorder(viewport *,bufferdevice *);
 point * Sru2Srn(point *, window *);
 bufferdevice * CreateBuffer(int, int);
 point * Srn2Srd(point *, bufferdevice *);
@@ -146,12 +148,12 @@ int Fill(object *, window *, bufferdevice *, int);
 object * Rotate(object *, float);
 object * Translate(object *, float, float);
 object * Scale(object *, float, float);
+hobject * Cisalhamento (hobject * ,hmatrix * );
 hpoint * LinearTransf(hmatrix *, hpoint *);
 hmatrix * ComposeMatrix(hmatrix *, hmatrix *);
 hmatrix * SetRotMatrix(float);
 hmatrix * SetSclMatrix(float, float);
 hmatrix * SetSftMatrix(float, float);
-
 /* visualiza o buffer (SRD) no monitor virtual */
 int Dump2X(bufferdevice *, palette *);
 

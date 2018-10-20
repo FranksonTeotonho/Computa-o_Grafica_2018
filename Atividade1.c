@@ -15,11 +15,7 @@ int main(int argc, char ** argv) {
   SetWorld(-20, 10, -20, 15); // Define o tamanho do mundo  
   dispositivo = CreateBuffer(640,480); // cria um dispositivo
 
-  vp = (viewport *) malloc(sizeof(viewport));
-  vp -> xmin = 50;
-  vp -> ymin = 50;
-  vp -> xmax = 350;
-  vp -> ymax = 350;
+  vp = vp = CreateViewport(50,350,0,350);
   
   palheta = CreatePalette(6);  
   SetColor(0,0,0,palheta);
